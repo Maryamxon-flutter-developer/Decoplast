@@ -175,6 +175,9 @@ class Screen2 extends StatefulWidget {
 }
 
 class _Screen2State extends State<Screen2> {
+   List<String> savedItems = [];
+
+   
   bool _isSearching = false;
   TextEditingController _searchController = TextEditingController(); 
 
