@@ -38,6 +38,7 @@ dependencies:
   smooth_page_indicator: ^1.2.0+3
   clay_containers: ^0.3.4
   image_picker: ^1.1.2
+  animated_text_kit: ^4.2.2
 
 dev_dependencies:
   flutter_test:

@@ -120,8 +120,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 },
                 child: Container(
-                  width: 200,
-                  height: 200,
+                  width: 150,
+                  height: 150,
                   child: buildClayContainer(
                     icon: item['icon'],
                     label: item['label'],
@@ -130,9 +130,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             );
-          }).toList(),
+          }
+          ).toList(),
         ),
+        
       ),
+      
     );
     
   }
@@ -177,7 +180,7 @@ class Screen2 extends StatefulWidget {
 class _Screen2State extends State<Screen2> {
    List<String> savedItems = [];
 
-   
+
   bool _isSearching = false;
   TextEditingController _searchController = TextEditingController(); 
 

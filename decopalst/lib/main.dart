@@ -2,6 +2,7 @@ import 'package:decopalst/asosiy.dart';
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:clay_containers/clay_containers.dart';
+import 'package:animated_text_kit/animated_text_kit.dart';
 
 void main() {
   runApp(MyApp());
@@ -37,12 +38,40 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: PageView(
                 controller: _pageController,
                 children: [
+                 
                   Container(
-                   width: 200,
-                   height: 200,
-                   child: Image.asset("assets/tiger.jpg"),
-                  ),
-                  buildPage("salom", "Welcome to Page 1"),
+                    width: 200,
+                    height: 200,
+                    child:Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+ // mainAxisSize: MainAxisSize.min,
+  children: <Widget>[
+    const SizedBox(width: 20.0, height: 100.0),
+    const Text(
+      'DECO',
+      style: TextStyle(fontSize: 43.0),
+    ),
+    const SizedBox(width: 20.0, height: 100.0),
+    DefaultTextStyle(
+      style: const TextStyle(
+        fontSize: 40.0,
+        fontFamily: 'Horizon',
+      ),
+      child: AnimatedTextKit(
+        animatedTexts: [
+          RotateAnimatedText('plast'),
+          RotateAnimatedText('panel'),
+          RotateAnimatedText('dekorative'),
+        ],
+        onTap: () {
+          print("Tap Event");
+        },
+      ),
+    ),
+  ],
+) //buildPage("", "Welcome to Page 1")
+                    ),
+                    
                   Container(
                     width: 200,
                     height: 200,
