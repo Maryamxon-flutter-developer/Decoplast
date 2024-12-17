@@ -1,280 +1,32 @@
-import 'package:decopalst/document.dart';
-import 'package:decopalst/icomning%20new.dart';
-import 'package:decopalst/new%20incoming.dart';
-import 'package:decopalst/scan.dart';
-import 'package:decopalst/store.dart';
-import 'package:decopalst/supliers.dart';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:clay_containers/clay_containers.dart';
-import 'package:image_picker/image_picker.dart'; // Image picker uchun
-import 'dart:io'; // Foydalaniladigan rasmni olish uchun
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
 void main() {
-  runApp(ScreenMain());
+  runApp(MaterialApp(home: PostApiPage()));
 }
 
-class ScreenMain extends StatelessWidget {
+class PostApiPage extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'WELCOME, main store',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: HomeScreen(),
-    );
-  }
+  _PostApiPageState createState() => _PostApiPageState();
 }
 
-class HomeScreen extends StatefulWidget {
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
+class _PostApiPageState extends State<PostApiPage> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _nomiController = TextEditingController();
+  final TextEditingController _modelController = TextEditingController();
+  final TextEditingController _eniController = TextEditingController();
+  final TextEditingController _uzunligiController = TextEditingController();
+  final TextEditingController _catController = TextEditingController();
+  final TextEditingController _storeController = TextEditingController();
 
-class _HomeScreenState extends State<HomeScreen> {
-  final List<Map<String, dynamic>> items = [
-    {'icon': Icons.production_quantity_limits, 'label': 'Goods', 'screen': Screen2()},
-    {'icon': Icons.document_scanner, 'label': 'Documents', 'screen': docsex()},
-    {'icon': Icons.qr_code, 'label': 'Scan barcode', 'screen':qrcode() },
-     {'icon': Icons.store, 'label': 'Select store', 'screen': stres()},
-     {'icon': Icons.person_3_outlined, 'label': 'Suppliers', 'screen': subperson()},
-     {'icon': Icons.store, 'label': 'Stores', 'screen': MyWidget()},
-     {'icon': Icons.add_box, 'label': 'New Incoming', 'screen': emki()},
-  ];
-
-  bool isVisible = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          "WELCOME, main store",
-          style: TextStyle(color: Colors.black),
-        ),
-        backgroundColor: const Color.fromARGB(205, 255, 255, 255),
-        leading: Builder(
-          builder: (context) => IconButton(
-            icon: Icon(Icons.menu, color: Colors.black),
-            onPressed: () => Scaffold.of(context).openDrawer(),
-          ),
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Icon(Icons.apps_outage, color: Colors.black),
-            onSelected: (String value) {
-              if (value == 'hide') {
-                setState(() {
-                  isVisible = !isVisible;
-                });
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              PopupMenuItem(
-                value: 'hide',
-                child: Text(isVisible ? 'Hide Items' : 'Show Items'),
-              ),
-            ],
-          ),
-        ],
-      ),
-      backgroundColor: Colors.white,
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blueGrey[100]),
-              child: Text(
-                'Menu',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ),
-            ...items.map((item) {
-              return ListTile(
-                leading: Icon(item['icon']),
-                title: Text(item['label']),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => item['screen']),
-                  );
-                },
-              );
-            }).toList(),
-          ],
-        ),
-      ),
-      body:Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Wrap(
-          spacing: 20, // Horizontal space between items
-          runSpacing: 20, // Vertical space between lines
-          children: items.map((item) {
-            return Visibility(
-              visible: isVisible, // Ensure visibility is controlled
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => item['screen']),
-                  );
-                },
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  child: buildClayContainer(
-                    icon: item['icon'],
-                    label: item['label'],
-                    baseColor: Colors.blueGrey[100]!,
-                  ),
-                ),
-              ),
-            );
-          }
-          ).toList(),
-        ),
-        
-      ),
-      
-    );
-    
-  }
-
-  Widget buildClayContainer({
-    required IconData icon,
-    required String label,
-    required Color baseColor,
-  }) {
-    return ClayContainer(
-      color: baseColor,
-      borderRadius: 20,
-      depth: 30,
-      spread: 15,
-      curveType: CurveType.concave,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 40, color: Colors.black),
-          SizedBox(height: 10),
-          Text(
-            label,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-
-        ],
-      ),
-    );
-
-    
-  }
-}
-
-// Goods Page
-
-
-class Screen2 extends StatefulWidget {
-  @override
-  _Screen2State createState() => _Screen2State();
-}
-
-class _Screen2State extends State<Screen2> {
-   List<String> savedItems = [];
-
-
-  bool _isSearching = false;
-  TextEditingController _searchController = TextEditingController(); 
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text('Goods'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                _isSearching = !_isSearching;
-              });
-            },
-            icon: Icon(Icons.search),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50),
-          child: AnimatedSwitcher(
-            duration: Duration(milliseconds: 300),
-            child: _isSearching
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        hintText: 'Search...',
-                        border: OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                          },
-                        ),
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-          ),
-        ),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: 200,
-              height: 200,
-              child: Image.network("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRESuKuskirZztnNWl6Km3EFNW5c6ug9c1Ebg&s"),
-            ),
-            Text(
-              'Add your goods',
-              style: TextStyle(fontSize: 24, color: Color.fromARGB(255, 188, 184, 184)),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Color.fromARGB(255, 239, 154, 51),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CVV()), // Make sure CVV is a defined widget.
-          );
-        },
-        child: Icon(Icons.add_box),
-      ),
-    );
-  }
-}
-
-// Add Product Page
-class CVV extends StatefulWidget {
-  @override
-  _CVVState createState() => _CVVState();
-}
-
-class _CVVState extends State<CVV> {
-  String selectedCategory = '';
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController modelController = TextEditingController();
-  final TextEditingController widthController = TextEditingController();
-  final TextEditingController lengthController = TextEditingController();
-  final TextEditingController quantityController = TextEditingController();
-  final TextEditingController priceController = TextEditingController();
   File? _image;
 
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _image = File(pickedFile.path);
@@ -282,172 +34,402 @@ class _CVVState extends State<CVV> {
     }
   }
 
+  List<Map<String, dynamic>> data = [];
+  bool isLoading = true;
+
+  // Fetch Data from API
+  Future<void> fetchData() async {
+    try {
+      final response =
+          await http.get(Uri.parse("https://dash.vips.uz/api/49/7281/78440"));
+      if (response.statusCode == 200) {
+        final List<dynamic> fetchedData = jsonDecode(response.body);
+        setState(() {
+          data = fetchedData.cast<Map<String, dynamic>>();
+          isLoading = false;
+        });
+      } else {
+        throw Exception("Ma'lumotlar topilmadi");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Xatolik: ${e.toString()}"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> del(String id) async {
+    final String url = 'https://dash.vips.uz/api-del/49/7281/78440?id=$id';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'apipassword': '1234',
+          // 'where': "id:$id",
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        print('Response: $responseData');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ma`lumot ochirildi')),
+        );
+        fetchData(); // Ma'lumotlarni yangilash
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Xatolik: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tarmoq xatosi yuz berdi')),
+      );
+    }
+  }
+
+   //update function
+   Future<void> upData(String id, String nomi, String model, String eni,String uzunligi, String categoryid,String storeid ) async {
+    final String url = 'https://dash.vips.uz/api-up/49/7281/78440';
+
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'apipassword': '1234',
+          'nomi': nomi,
+          'model': model,
+          'eni': eni,
+          'uzunligi':uzunligi,
+          'categoryid':categoryid,
+          'storeid':storeid,
+          'where': "id:$id",
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        print('Response: $responseData');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Malumot muvaffaqiyatli yangilandi!')),
+        );
+        fetchData(); // Ma'lumotlarni yangilash
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Xatolik: ${response.statusCode}')), 
+        );
+      }
+    } catch (e) {
+      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Tarmoq xatosi yuz berdi')),
+      );
+    }
+  }
+
+
+   void showEditDialog(Map<String, dynamic> item) {
+    
+    TextEditingController nameController = TextEditingController(text: item["nomi"]);
+    TextEditingController infoController = TextEditingController(text: item["model"]);
+    TextEditingController narxiController = TextEditingController(text: item["eni"]);
+     TextEditingController werController = TextEditingController(text: item["uzunligi"]);
+      TextEditingController kerController = TextEditingController(text: item["categoryid"]);
+       TextEditingController cerController = TextEditingController(text: item["stoer"]);
+    
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Ma'lumotlarni o'zgartirish"),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(labelText: "nomi"),
+                ),
+                TextField(
+                  controller: infoController,
+                  decoration: InputDecoration(labelText: "model"),
+                ),
+                TextField(
+                  controller: narxiController,
+                  decoration: InputDecoration(labelText: "eni"),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: werController,
+                  decoration: InputDecoration(labelText: "uzunligi"),
+                  keyboardType: TextInputType.number,
+                ),
+             
+             TextField(
+                  controller: kerController,
+                  decoration: InputDecoration(labelText: "categoryid"),
+                  keyboardType: TextInputType.number,
+                ),
+                TextField(
+                  controller: cerController,
+                  decoration: InputDecoration(labelText: "storeid"),
+                  keyboardType: TextInputType.number,
+                ),
+               SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          color: Colors.grey[300],
+                          child: _image == null
+                              ? Icon(Icons.camera_alt, size: 40)
+                              : Image.file(_image!, fit: BoxFit.cover),
+                        ),
+                      ),
+             
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Bekor qilish"),
+            ),
+            TextButton(
+              onPressed: () {
+                upData(
+                  item["id"],
+                  nameController.text,
+                  infoController.text,
+                  narxiController.text,
+                   werController.text,
+                  kerController.text,
+                   cerController.text,
+                 
+                );
+                Navigator.of(context).pop();
+              },
+              child: Text("Saqlash"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+  // Post Data Function
+  Future<void> postData(String nomi, String model, String eni, String uzunligi,
+      String categoryId, String storeId) async {
+    final String url = 'https://dash.vips.uz/api-in/49/7281/78440';
+    try {
+      final request = http.MultipartRequest('POST', Uri.parse(url));
+      request.fields['apipassword'] = '1234';
+      request.fields['nomi'] = nomi;
+      request.fields['model'] = model;
+      request.fields['eni'] = eni;
+      request.fields['uzunligi'] = uzunligi;
+      request.fields['categoryid'] = categoryId;
+      request.fields['do`konnomi'] = storeId;
+
+      if (_image != null) {
+        request.files
+            .add(await http.MultipartFile.fromPath('image', _image!.path));
+      }
+
+      final response = await request.send();
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Data posted successfully!')),
+        );
+        fetchData(); // Refresh data
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to post data: ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  void showDeleteDialog(String id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Bu elementni o`chirasizmi?"),
+          content: Text("Ushbu elementning ID si: $id"),
+          actions: [
+            TextButton(
+              onPressed: () {
+               del(id);
+                print(id);
+                Navigator.of(context).pop();
+              },
+              child: Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text("Cancel"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildTextField(TextEditingController controller, String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10.0),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(),
+        ),
+        validator: (value) =>
+            value == null || value.isEmpty ? 'Iltimos, $label kiriting' : null,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: Text(
-          'Add Product',
-          style: TextStyle(color: Colors.black),
-        ),
-        iconTheme: IconThemeData(color: Colors.black),
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Select Category',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: ['Panels', 'Rebresties', 'Accessories', 'natyajnoy']
-                  .map((category) => GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            selectedCategory = category;
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: selectedCategory == category
-                                  ? Color.fromARGB(255, 241, 167, 39)
-                                  : const Color.fromARGB(255, 219, 215, 215),
-                              width: selectedCategory == category ? 3 : 1,
-                            ),
-                            color: selectedCategory == category
-                                ? Color.fromARGB(255, 240, 186, 77)
-                                : Colors.white,
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 20),
-                          child: Text(
-                            category,
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ),
-                      ))
-                  .toList(),
-            ),
-            SizedBox(height: 20),
-            if (selectedCategory.isNotEmpty)
-              Expanded(
-                child: SingleChildScrollView(scrollDirection: Axis.vertical,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextField(
-                        controller: nameController,
-                        decoration: InputDecoration(
-                          labelText: 'Product Name',
-                          border: OutlineInputBorder(),
-                        ),
+      appBar: AppBar(title: Text('Goods')),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: data.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Card(
+                    elevation: 3,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.grey,
+                        radius: 30,
+                        child:
+                        
+                         Icon(Icons.shopping_bag),
                       ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: modelController,
-                        decoration: InputDecoration(
-                          labelText: 'Product Model',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: widthController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Width',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: lengthController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Length',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: quantityController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Quantity',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      TextField(
-                        controller: priceController,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          labelText: 'Price',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      SizedBox(height: 10),
-                      Text('Product Image'),
-                      GestureDetector(
-  onTap: _pickImage,
-  child: Container(
-    height: 200,
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.grey),
-      borderRadius: BorderRadius.circular(10),
-    ),
-    child: _image == null
-        ? Center(
-            child: IconButton(
-              onPressed: _pickImage, // Open gallery when the icon is pressed
-              icon: Icon(Icons.photo),
-            ),
-          )
-        : Image.file(_image!),
-  ),
-),
-
-                      SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      title: Text("Nomi: ${data[index]["nomi"]}"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                           
-                            ),
-                            child: Text('Cancel'),
-                          ),
-                          SizedBox(width: 20,),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Save logic goes here
-                            },
-                            child: Text('Save'),
-                          ),
+                          Text("Model: ${data[index]["model"]}"),
+                          Text("Eni: ${data[index]["eni"]}"),
+                          Text("Uzunligi: ${data[index]["uzunligi"]}"),
+                            Text("categorysi: ${data[index]["categoryid"]}"),
+                              Text("store: ${data[index]["store"]}"),
                         ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.delete, color: const Color.fromARGB(255, 224, 203, 170)),
+                            onPressed: () => showDeleteDialog(data[index]['id']),
+                          ),
+                                                   
+                           IconButton(
+                            icon: Icon(Icons.edit, color: const Color.fromARGB(255, 216, 200, 158)),
+                            onPressed: (){
+                               showEditDialog(data[index]);
+                            }
+                                                         ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text("Mahsulot qo'shish"),
+              content: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      buildTextField(_nomiController, 'Nomi'),
+                      buildTextField(_modelController, 'Model'),
+                      buildTextField(_eniController, 'Eni'),
+                      buildTextField(_uzunligiController, 'Uzunligi'),
+                      buildTextField(_catController, 'Category ID'),
+                      buildTextField(_storeController, 'Store ID'),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          color: Colors.grey[300],
+                          child: _image == null
+                              ? Icon(Icons.camera_alt, size: 40)
+                              : Image.file(_image!, fit: BoxFit.cover),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              )
-            else
-              Center(child: Text('Please select a category')),
-          ],
-        ),
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      await postData(
+                        _nomiController.text,
+                        _modelController.text,
+                        _eniController.text,
+                        _uzunligiController.text,
+                        _catController.text,
+                        _storeController.text,
+                      );
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Text("Add"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+              ],
+            ),
+          );
+        },
+        child: Icon(Icons.add),
       ),
     );
   }
